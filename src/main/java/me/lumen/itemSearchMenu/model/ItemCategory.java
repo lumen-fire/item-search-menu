@@ -1,12 +1,10 @@
-package me.lumen.itemSearchMenu.config;
+package me.lumen.itemSearchMenu.model;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ItemCategory {
-    private final List<ItemType> items = new ArrayList<>();
+    private final List<ItemCondition> items = new ArrayList<>();
     private @Range(from = 1, to = 9) byte slot;
     private ItemStack icon;
     private Component displayName;
@@ -29,20 +27,22 @@ public class ItemCategory {
         this.displayName = displayName;
     }
 
-    public void addItem(ItemType item){
-        items.add(item);
+    public ItemCategory(@Range(from = 1, to = 9) byte slot, Component displayName){
+        this.slot = slot;
+        this.icon = getDefaultIcon();
+        this.displayName = displayName;
     }
 
-    public final void addTag(@NotNull Tag<Material> tag) {
-        for (Material material : tag.getValues()) {
-            ItemType itemType = material.asItemType();
-            assert itemType != null;
-            items.add(itemType);
-        }
+    public void addItemCondition(ItemCondition condition){
+        items.add(condition);
+    }
+
+    public void removeItemCondition(ItemCondition condition){
+        items.remove(condition);
     }
 
     @Contract(pure = true)
-    public @NotNull @Unmodifiable List<ItemType> items(){
+    public @NotNull @Unmodifiable List<ItemCondition> itemConditions(){
         return List.copyOf(items);
     }
 
@@ -74,7 +74,7 @@ public class ItemCategory {
     }
 
     private List<String> itemsAsString(){
-        return items.stream().map(itemType -> itemType.getKey().asString()).toList();
+        return items.stream().map(ItemCondition::asString).toList();
     }
 
     public static ItemCategory deserialize(@NotNull ConfigurationSection section){
@@ -86,8 +86,9 @@ public class ItemCategory {
         byte slot = Byte.parseByte(name);
 
         ItemCategory category = new ItemCategory(slot, icon, displayName);
-        for (String string : itemsAsStrings){
-
+        for (String asString : itemsAsStrings){
+            ItemCondition condition = ItemCondition.from(asString);
+            category.addItemCondition(condition);
         }
         return category;
     }

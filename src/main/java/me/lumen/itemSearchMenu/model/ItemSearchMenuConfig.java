@@ -1,7 +1,8 @@
-package me.lumen.itemSearchMenu.config;
+package me.lumen.itemSearchMenu.model;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -11,9 +12,10 @@ public class ItemSearchMenuConfig {
         this.plugin = plugin;
     }
 
-    public ItemCategory getCategory(String id){
-        ConfigurationSection section = getOrCreateSection(getCategoriesSection(), id);
-
+    public @Nullable ItemCategory getCategory(byte slot){
+        ConfigurationSection section = getCategoriesSection().getConfigurationSection(Byte.toString(slot));
+        if (section == null) return null;
+        return ItemCategory.deserialize(section);
     }
 
     private ConfigurationSection getCategoriesSection(){
@@ -22,10 +24,6 @@ public class ItemSearchMenuConfig {
 
     private ConfigurationSection getOrCreateSection(String path){
         ConfigurationSection section = plugin.getConfig().getConfigurationSection(path);
-        return getOrCreateSection(section, path);
-    }
-
-    private ConfigurationSection getOrCreateSection(ConfigurationSection parent, String path){
-        return Objects.requireNonNullElseGet(parent, () -> plugin.getConfig().createSection(path));
+        return Objects.requireNonNullElseGet(section, () -> plugin.getConfig().createSection(path));
     }
 }
