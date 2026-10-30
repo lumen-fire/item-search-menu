@@ -1,6 +1,6 @@
 name: item-search-menu
 version: '1.0.0-beta'
-main: me.lumen.itemSearchMenu.ItemSearchMenu
+main: me.lumen.itemSearchMenu.ItemSearchMenuPlugin
 api-version: '1.21'
 authors: [ Lumen-Fire ]
 description: A menu to search for items to get
