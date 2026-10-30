@@ -29,7 +29,7 @@ public class ItemCategory {
         this.displayName = displayName;
     }
 
-    public ItemCategory(@Range(from = 1, to = 9) byte slot, Component displayName){
+    ItemCategory(@Range(from = 1, to = 9) byte slot, Component displayName){
         this.slot = slot;
         this.icon = getDefaultIcon();
         this.displayName = displayName;
@@ -54,6 +54,10 @@ public class ItemCategory {
 
     public byte slot() {
         return slot;
+    }
+
+    public String slotAsString(){
+        return Byte.toString(slot);
     }
 
     public ItemStack icon(){

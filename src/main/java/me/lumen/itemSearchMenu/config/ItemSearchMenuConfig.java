@@ -1,6 +1,11 @@
 package me.lumen.itemSearchMenu.config;
 
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -30,12 +35,12 @@ public class ItemSearchMenuConfig {
         plugin.saveConfig();
     }
 
-    public void createItemCategory(@Range(from = 1, to = 9) byte slot, Component displayName){
+    public ItemCategory createItemCategory(@Range(from = 1, to = 9) byte slot, Component displayName){
         String stringSlot = Byte.toString(slot);
         if (getCategoriesSection().contains(stringSlot)) throw new IllegalArgumentException("Item category for slot " + slot + " already exists");
         ItemCategory category = new ItemCategory(slot, displayName);
-        getCategoriesSection().createSection(stringSlot, category.serialize());
-        plugin.saveConfig();
+        saveCategory(category);
+        return category;
     }
 
     public Set<String> getItemCategoryIds(){
@@ -53,6 +58,11 @@ public class ItemSearchMenuConfig {
             categories.add(category);
         }
         return categories;
+    }
+
+    public void saveCategory(@NotNull ItemCategory category){
+        getCategoriesSection().createSection(category.slotAsString(), category.serialize());
+        plugin.saveConfig();
     }
 
     public void addBlacklistCondition(ItemCondition condition){
@@ -83,8 +93,46 @@ public class ItemSearchMenuConfig {
         return conditions;
     }
 
+    private void sendMessage(String key, String def, @NotNull TagResolver resolver, Audience target){
+        String raw = getMessagesSection().getString(key, def);
+        Component message = MiniMessage.miniMessage().deserialize(raw, target, resolver);
+        target.sendMessage(message);
+    }
+
+    public void sendDisplayNameMessage(@NotNull ItemCategory category, Audience target){
+        TagResolver resolver = TagResolver.builder()
+                .tag("name", Tag.selfClosingInserting(category.displayName()))
+                .resolvers(slotReplacer(category))
+                .build();
+        sendMessage("category.edit.name", "<green>Set name of category with slot <slot> to <name>", resolver, target);
+    }
+
+    public void sendIconMessage(@NotNull ItemCategory category, Audience target){
+        TagResolver resolver = categoryReplace(category).tag("icon", Tag.selfClosingInserting(category.icon().displayName())).build();
+        sendMessage("category.edit.icon", "<green>Set icon of category <category> to <icon>", resolver, target);
+    }
+
+    public void sendCreatedMessage(ItemCategory created, Audience target){
+        TagResolver resolver = categoryReplace(created).resolvers(slotReplacer(created)).build();
+        sendMessage("category.create", "<green>Created category <category> in slot <slot>", resolver, target);
+    }
+
+    private static TagResolver.@NotNull Builder categoryReplace(@NotNull ItemCategory category){
+        return TagResolver.builder().tag("category", Tag.selfClosingInserting(category.displayName()));
+    }
+
+    private static @NotNull TagResolver slotReplacer(@NotNull ItemCategory category){
+        return TagResolver.builder().tag("slot", Tag.selfClosingInserting(Component.text(category.slot(), NamedTextColor.GRAY))).build();
+    }
+
+
+
     private ConfigurationSection getCategoriesSection(){
         return getOrCreateSection("categories");
+    }
+
+    private ConfigurationSection getMessagesSection(){
+        return getOrCreateSection("messages");
     }
 
     private ConfigurationSection getOrCreateSection(String path){

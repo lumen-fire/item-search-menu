@@ -1,1 +1,8 @@
 categories:
+messages:
+  category:
+    create: <green>Created category <category> in slot <slot>
+    delete: <yellow>Deleted category <category>
+    edit:
+      name: <green>Set name of category with slot <slot> to <name>
+      icon: <green>Set icon of category <category> to <icon>

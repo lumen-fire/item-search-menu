@@ -48,4 +48,8 @@ public class ItemCategoryArg implements CustomArgumentType.Converted<ItemCategor
     public static ItemCategoryArg argument(){
         return ARGUMENT;
     }
+
+    public static ItemCategory getItemCategory(@NotNull CommandContext<?> context, String name){
+        return context.getArgument(name, ItemCategory.class);
+    }
 }
