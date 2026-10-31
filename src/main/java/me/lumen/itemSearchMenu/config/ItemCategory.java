@@ -2,6 +2,7 @@ package me.lumen.itemSearchMenu.config;
 
 import com.mojang.brigadier.Message;
 import io.papermc.paper.command.brigadier.MessageComponentSerializer;
+import me.lumen.itemSearchMenu.ItemSearchMenuPlugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import org.bukkit.Material;
@@ -19,7 +20,7 @@ import java.util.Map;
 
 public class ItemCategory {
     private final List<ItemCondition> conditions = new ArrayList<>();
-    private @Range(from = 1, to = 9) byte slot;
+    private final @Range(from = 1, to = 9) byte slot;
     private ItemStack icon;
     private Component displayName;
 
@@ -37,19 +38,21 @@ public class ItemCategory {
 
     public void addItemCondition(ItemCondition condition){
         conditions.add(condition);
+        ItemSearchMenuPlugin.get().getItemSearchMenuConfig().saveCategory(this);
     }
 
     public void removeItemCondition(ItemCondition condition){
         conditions.remove(condition);
+        ItemSearchMenuPlugin.get().getItemSearchMenuConfig().saveCategory(this);
+    }
+
+    public boolean hasItemCondition(@NotNull ItemCondition condition){
+        return conditionsAsString().contains(condition.asString());
     }
 
     @Contract(pure = true)
     public @NotNull @Unmodifiable List<ItemCondition> filter(){
         return List.copyOf(conditions);
-    }
-
-    public void setSlot(@Range(from = 1, to = 9) byte slot){
-        this.slot = slot;
     }
 
     public byte slot() {
@@ -66,6 +69,7 @@ public class ItemCategory {
 
     public void setIcon(ItemStack icon) {
         this.icon = icon;
+        ItemSearchMenuPlugin.get().getItemSearchMenuConfig().saveCategory(this);
     }
 
     private @NotNull ItemStack getDefaultIcon(){
@@ -109,5 +113,6 @@ public class ItemCategory {
 
     public void setDisplayName(Component displayName) {
         this.displayName = displayName;
+        ItemSearchMenuPlugin.get().getItemSearchMenuConfig().saveCategory(this);
     }
 }

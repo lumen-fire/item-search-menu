@@ -3,6 +3,7 @@ package me.lumen.itemSearchMenu.commands.args;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
@@ -32,6 +33,10 @@ public class ItemTypeConditionArg implements CustomArgumentType<ItemCondition, I
      */
     public static ItemTypeConditionArg argument(){
         return DEFAULT_ARGUMENT;
+    }
+
+    public static ItemCondition getItemCondition(@NotNull CommandContext<?> context, String name){
+        return context.getArgument(name, ItemCondition.class);
     }
 
     @Override

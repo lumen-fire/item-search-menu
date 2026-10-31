@@ -3,6 +3,17 @@ messages:
   category:
     create: <green>Created category <category> in slot <slot>
     delete: <yellow>Deleted category <category>
+    list-header: <gold><b>Item categories
     edit:
       name: <green>Set name of category with slot <slot> to <name>
       icon: <green>Set icon of category <category> to <icon>
+      condition:
+        add: <green>Added item condition <condition> to category <category>
+        remove: <green>Removed item condition <condition> from category <category>
+        list-header: <green><b>Item conditions for category <category>
+    info:
+      header: <green><b><u>Info for category <category>
+      slot: "<green>Slot: <slot>"
+      icon: "<green>Icon: <icon>"
+      footer: <showconditions><hover:show_text:'<gold>Click to show conditions'><green><i>[Show conditions...]</hover></showconditions>
+

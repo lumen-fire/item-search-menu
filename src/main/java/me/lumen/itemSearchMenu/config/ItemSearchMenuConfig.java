@@ -2,6 +2,8 @@ package me.lumen.itemSearchMenu.config;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickCallback;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
@@ -60,7 +62,7 @@ public class ItemSearchMenuConfig {
         return categories;
     }
 
-    public void saveCategory(@NotNull ItemCategory category){
+    void saveCategory(@NotNull ItemCategory category){
         getCategoriesSection().createSection(category.slotAsString(), category.serialize());
         plugin.saveConfig();
     }
@@ -99,7 +101,7 @@ public class ItemSearchMenuConfig {
         target.sendMessage(message);
     }
 
-    public void sendDisplayNameMessage(@NotNull ItemCategory category, Audience target){
+    public void sendCategoryDisplayNameMessage(@NotNull ItemCategory category, Audience target){
         TagResolver resolver = TagResolver.builder()
                 .tag("name", Tag.selfClosingInserting(category.displayName()))
                 .resolvers(slotReplacer(category))
@@ -107,25 +109,77 @@ public class ItemSearchMenuConfig {
         sendMessage("category.edit.name", "<green>Set name of category with slot <slot> to <name>", resolver, target);
     }
 
-    public void sendIconMessage(@NotNull ItemCategory category, Audience target){
-        TagResolver resolver = categoryReplace(category).tag("icon", Tag.selfClosingInserting(category.icon().displayName())).build();
+    public void sendCategoryIconMessage(@NotNull ItemCategory category, Audience target){
+        TagResolver resolver = categoryReplacer(category).resolvers(iconReplacer(category)).build();
         sendMessage("category.edit.icon", "<green>Set icon of category <category> to <icon>", resolver, target);
     }
 
-    public void sendCreatedMessage(ItemCategory created, Audience target){
-        TagResolver resolver = categoryReplace(created).resolvers(slotReplacer(created)).build();
+    public void sendCategoryCreatedMessage(ItemCategory created, Audience target){
+        TagResolver resolver = categoryReplacer(created).resolvers(slotReplacer(created)).build();
         sendMessage("category.create", "<green>Created category <category> in slot <slot>", resolver, target);
     }
 
-    private static TagResolver.@NotNull Builder categoryReplace(@NotNull ItemCategory category){
+    public void sendCategoryDeletedMessage(ItemCategory deleted, Audience target){
+        TagResolver resolver = categoryReplacer(deleted).build();
+        sendMessage("category.delete", "<yellow>Deleted category <category>", resolver, target);
+    }
+
+    public void sendCategoryConditionAddedMessage(ItemCategory category, ItemCondition added, Audience target){
+        sendCategoryFilterChangeMessage(category, added, "category.edit.condition.add", "<green>Added item condition <condition> to category <category>", target);
+    }
+
+    public void sendCategoryConditionDeletedMessage(ItemCategory category, ItemCondition deleted, Audience target){
+        sendCategoryFilterChangeMessage(category, deleted, "category.edit.condition.remove", "<green>Removed item condition <condition> from category <category>", target);
+    }
+
+    private void sendCategoryFilterChangeMessage(ItemCategory category, ItemCondition changed, String key, String def, Audience target){
+        TagResolver resolver = categoryReplacer(category).resolvers(conditionReplacer(changed).build()).build();
+        sendMessage(key, def, resolver, target);
+    }
+
+    public void sendCategoryConditionListHeader(ItemCategory category, Audience target){
+        sendMessage("category.edit.condition.list-header", "<green><b>Item conditions for category <category>", categoryReplacer(category).build(), target);
+    }
+
+    public void sendCategoryInfoHeader(ItemCategory category, Audience target){
+        sendMessage("category.info.header", "<green><b><u>Info for category <category>", categoryReplacer(category).build(), target);
+    }
+
+    public void sendCategoryInfoSlot(ItemCategory category, Audience target){
+        sendMessage("category.info.slot", "<green>Slot: <slot>", slotReplacer(category), target);
+    }
+
+    public void sendCategoryInfoIcon(ItemCategory category, Audience target){
+        sendMessage("category.info.icon", "<green>Icon: <icon>", iconReplacer(category), target);
+    }
+
+    public void sendCategoryInfoFooter(ClickCallback<Audience> click, Audience target){
+        TagResolver resolver = TagResolver.builder()
+                .tag("showconditions", Tag.styling(builder -> builder.clickEvent(ClickEvent.callback(click))))
+                .build();
+        String def = "<showconditions><hover:show_text:'<gold>Click to show conditions'><green><i>[Show conditions...]</hover></showconditions>";
+        sendMessage("category.info.footer", def, resolver, target);
+    }
+
+    public void sendCategoryListHeader(Audience target){
+        sendMessage("category.list-header", "<gold><b>Item categories", TagResolver.builder().build(), target);
+    }
+
+    private static TagResolver.@NotNull Builder categoryReplacer(@NotNull ItemCategory category){
         return TagResolver.builder().tag("category", Tag.selfClosingInserting(category.displayName()));
+    }
+
+    private static TagResolver.@NotNull Builder conditionReplacer(@NotNull ItemCondition condition){
+        return TagResolver.builder().tag("condition", Tag.selfClosingInserting(Component.text(condition.asString())));
     }
 
     private static @NotNull TagResolver slotReplacer(@NotNull ItemCategory category){
         return TagResolver.builder().tag("slot", Tag.selfClosingInserting(Component.text(category.slot(), NamedTextColor.GRAY))).build();
     }
 
-
+    private static @NotNull TagResolver iconReplacer(@NotNull ItemCategory category){
+        return TagResolver.builder().tag("icon", Tag.selfClosingInserting(category.icon().displayName())).build();
+    }
 
     private ConfigurationSection getCategoriesSection(){
         return getOrCreateSection("categories");
