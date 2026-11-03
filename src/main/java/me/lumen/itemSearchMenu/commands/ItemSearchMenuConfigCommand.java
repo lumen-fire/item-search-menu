@@ -1,10 +1,13 @@
 package me.lumen.itemSearchMenu.commands;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -24,9 +27,12 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 
 public class ItemSearchMenuConfigCommand {
     private static final Dynamic2CommandExceptionType ITEM_CONDITION_ALREADY_EXISTS = new Dynamic2CommandExceptionType((a, b) ->
@@ -35,6 +41,14 @@ public class ItemSearchMenuConfigCommand {
 
     private static final Dynamic2CommandExceptionType ITEM_CONDITION_NOT_EXISTS = new Dynamic2CommandExceptionType((a, b) ->
             MessageComponentSerializer.message().serialize(Component.text("Item condition " + a + " does not exist in category ").append((Component) b))
+    );
+
+    private static final DynamicCommandExceptionType ALREADY_IN_BLACKLIST = new DynamicCommandExceptionType(o ->
+            new LiteralMessage("Item condition " + o + " is already in the blacklist")
+    );
+
+    private static final DynamicCommandExceptionType NOT_IN_BLACKLIST = new DynamicCommandExceptionType(o ->
+            new LiteralMessage("Item condition " + o + " is not in the blacklist")
     );
 
 
@@ -174,9 +188,36 @@ public class ItemSearchMenuConfigCommand {
                 );
 
         LiteralArgumentBuilder<CommandSourceStack> blacklistNode = Commands.literal("blacklist")
-                .then(Commands.literal("add"))
-                .then(Commands.literal("remove"))
-                .then(Commands.literal("list"));
+                .then(Commands.literal("add")
+                        .then(Commands.argument("item-condition", ItemTypeConditionArg.argument())
+                                .executes(context ->
+                                        blacklistOperation(context, (config, condition) -> !config.isBlacklisted(condition), ALREADY_IN_BLACKLIST, ItemSearchMenuConfig::addBlacklistCondition, ItemSearchMenuConfig::sendBlacklistConditionAdded)
+                                )
+                        )
+                )
+                .then(Commands.literal("remove")
+                        .then(Commands.argument("item-condition", ItemTypeConditionArg.argument())
+                                .suggests((context, builder) -> {
+                                    ItemSearchMenuPlugin.get().getItemSearchMenuConfig().getBlacklistAsString().forEach(builder::suggest);
+                                    return builder.buildFuture();
+                                })
+                                .executes(context ->
+                                        blacklistOperation(context, ItemSearchMenuConfig::isBlacklisted, NOT_IN_BLACKLIST, ItemSearchMenuConfig::removeBlacklistCondition, ItemSearchMenuConfig::sendBlacklistConditionRemoved)
+                                )
+                        )
+                )
+                .then(Commands.literal("list")
+                        .executes(context -> {
+                            CommandSender sender = context.getSource().getSender();
+                            ItemSearchMenuConfig config = ItemSearchMenuPlugin.get().getItemSearchMenuConfig();
+                            List<String> blacklist = config.getBlacklistAsString();
+                            config.sendBlacklistListHeader(sender);
+                            for (String condition : blacklist){
+                                sender.sendMessage(Component.text(" - " + condition, NamedTextColor.GREEN));
+                            }
+                            return blacklist.size();
+                        })
+                );
 
         return Commands.literal("itemsearchmenu")
                 .then(Commands.literal("reload"))
@@ -200,5 +241,22 @@ public class ItemSearchMenuConfigCommand {
             Component line = Component.text(" - " + condition, NamedTextColor.GREEN);
             audience.sendMessage(line);
         }
+    }
+
+    private static int blacklistOperation(CommandContext<CommandSourceStack> context, @NonNull BiPredicate<ItemSearchMenuConfig, ItemCondition> conditionPredicate, DynamicCommandExceptionType conditionFailed,
+                                          BiConsumer<ItemSearchMenuConfig, ItemCondition> operation, BlacklistOperationMessage message) throws CommandSyntaxException
+    {
+        ItemCondition condition = ItemTypeConditionArg.getItemCondition(context, "item-condition");
+        ItemSearchMenuConfig config = ItemSearchMenuPlugin.get().getItemSearchMenuConfig();
+        if (conditionPredicate.test(config, condition)) {
+            throw conditionFailed.create(condition.asString());
+        }
+        message.send(config, context.getSource().getSender(), condition);
+        operation.accept(config, condition);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private interface BlacklistOperationMessage {
+        void send(ItemSearchMenuConfig config, Audience target, ItemCondition condition);
     }
 }

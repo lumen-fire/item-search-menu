@@ -16,4 +16,8 @@ messages:
       slot: "<green>Slot: <slot>"
       icon: "<green>Icon: <icon>"
       footer: <showconditions><hover:show_text:'<gold>Click to show conditions'><green><i>[Show conditions...]</hover></showconditions>
+  blacklist:
+    add: <green>Added blacklist condition <condition>
+    remove: <yellow>Removed blacklist condition <condition>
+    list-header: <green><b>Blacklist conditions
 

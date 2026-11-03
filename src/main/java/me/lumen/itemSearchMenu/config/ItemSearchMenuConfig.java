@@ -13,6 +13,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,6 +96,10 @@ public class ItemSearchMenuConfig {
         return conditions;
     }
 
+    public boolean isBlacklisted(@NonNull ItemCondition condition){
+        return getBlacklistAsString().contains(condition.asString());
+    }
+
     private void sendMessage(String key, String def, @NotNull TagResolver resolver, Audience target){
         String raw = getMessagesSection().getString(key, def);
         Component message = MiniMessage.miniMessage().deserialize(raw, target, resolver);
@@ -163,6 +168,18 @@ public class ItemSearchMenuConfig {
 
     public void sendCategoryListHeader(Audience target){
         sendMessage("category.list-header", "<gold><b>Item categories", TagResolver.builder().build(), target);
+    }
+
+    public void sendBlacklistListHeader(Audience target){
+        sendMessage("blacklist.list-header", "<green><b>Blacklist conditions", TagResolver.builder().build(), target);
+    }
+
+    public void sendBlacklistConditionAdded(Audience target, ItemCondition added){
+        sendMessage("blacklist.add", "<green>Added blacklist condition <condition>", conditionReplacer(added).build(), target);
+    }
+
+    public void sendBlacklistConditionRemoved(Audience target, ItemCondition removed){
+        sendMessage("blacklist.remove", "<yellow>Removed blacklist condition <condition>", conditionReplacer(removed).build(), target);
     }
 
     private static TagResolver.@NotNull Builder categoryReplacer(@NotNull ItemCategory category){
