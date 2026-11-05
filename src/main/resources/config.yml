@@ -1,4 +1,4 @@
-categories:
+categories: {}
 messages:
   reload: <green>Reloaded the item-search-menu plugin
   version: <green>Item search menu is running version <version>

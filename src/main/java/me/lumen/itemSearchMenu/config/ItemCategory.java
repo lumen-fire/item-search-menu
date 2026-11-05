@@ -4,7 +4,7 @@ import com.mojang.brigadier.Message;
 import io.papermc.paper.command.brigadier.MessageComponentSerializer;
 import me.lumen.itemSearchMenu.ItemSearchMenuPlugin;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
@@ -80,7 +80,7 @@ public class ItemCategory {
     }
 
     public @NotNull Map<String, Object> serialize() {
-        return Map.of("display-name", JSONComponentSerializer.json().serialize(displayName),"icon", icon, "filter", conditionsAsString());
+        return Map.of("display-name", MiniMessage.miniMessage().serialize(displayName),"icon", icon, "filter", conditionsAsString());
     }
 
     private List<String> conditionsAsString(){

@@ -39,6 +39,10 @@ import java.util.function.Predicate;
 
 public class ItemSearchMenuConfigCommand {
     //errors
+    private static final DynamicCommandExceptionType CATEGORY_ALREADY_EXISTS = new DynamicCommandExceptionType(object ->
+            new LiteralMessage("A category already exists in slot " + object)
+    );
+
     private static final Dynamic2CommandExceptionType ITEM_CONDITION_ALREADY_EXISTS = new Dynamic2CommandExceptionType((a, b) ->
             MessageComponentSerializer.message().serialize(Component.text("Item condition " + a + " already exists in category ").append((Component) b))
     );
@@ -99,6 +103,7 @@ public class ItemSearchMenuConfigCommand {
                                             byte slot = (byte) IntegerArgumentType.getInteger(context, "slot");
                                             Component name = MiniMessageArg.getMessage(context, "name");
                                             ItemSearchMenuConfig config = ItemSearchMenuPlugin.get().getItemSearchMenuConfig();
+                                            if (config.categoryExists(slot)) throw CATEGORY_ALREADY_EXISTS.create(slot);
                                             ItemCategory category = config.createItemCategory(slot, name);
                                             config.sendCategoryCreatedMessage(category, context.getSource().getSender());
                                             return Command.SINGLE_SUCCESS;
@@ -293,7 +298,7 @@ public class ItemSearchMenuConfigCommand {
     }
 
     private static CompletableFuture<Suggestions> suggestAvailableSlots(CommandContext<?> ignored, SuggestionsBuilder builder){
-        for (byte b = 1; b < 9; b++){
+        for (byte b = 1; b <= 9; b++){
             if (ItemSearchMenuPlugin.get().getItemSearchMenuConfig().categoryExists(b)) continue;
             builder.suggest(b);
         }
@@ -303,7 +308,7 @@ public class ItemSearchMenuConfigCommand {
     private static void listCategoryConditions(ItemCategory category, Audience audience){
         ItemSearchMenuPlugin.get().getItemSearchMenuConfig().sendCategoryConditionListHeader(category, audience);
         for (ItemCondition condition : category.filter()){
-            Component line = Component.text(" - " + condition, NamedTextColor.GREEN);
+            Component line = Component.text(" - " + condition.asString(), NamedTextColor.GREEN);
             audience.sendMessage(line);
         }
     }
@@ -313,7 +318,7 @@ public class ItemSearchMenuConfigCommand {
     {
         ItemCondition condition = ItemTypeConditionArg.getItemCondition(context, "item-condition");
         ItemSearchMenuConfig config = ItemSearchMenuPlugin.get().getItemSearchMenuConfig();
-        if (conditionPredicate.test(config, condition)) {
+        if (!conditionPredicate.test(config, condition)) {
             throw conditionFailed.create(condition.asString());
         }
         message.send(config, context.getSource().getSender(), condition);
