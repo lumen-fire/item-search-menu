@@ -14,7 +14,7 @@ messages:
         remove: <green>Removed item condition <condition> from category <category>
         list-header: <green><b>Item conditions for category <category>
     info:
-      header: <green><b><u>Info for category <category>
+      header: <green><b>Info for category <category>
       slot: "<green>Slot: <slot>"
       icon: "<green>Icon: <icon>"
       footer: <showconditions><hover:show_text:'<gold>Click to show conditions'><green><i>[Show conditions...]</hover></showconditions>

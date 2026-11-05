@@ -230,7 +230,7 @@ public class ItemSearchMenuConfigCommand {
                             config.sendCategoryListHeader(sender);
                             List<ItemCategory> categories = config.getItemCategories();
                             for (ItemCategory category : categories){
-                                Component line = Component.text(" - ", NamedTextColor.GOLD)
+                                Component line = Component.text(" • ", NamedTextColor.GOLD)
                                         .append(category.displayName());
                                 sender.sendMessage(line);
                             }
@@ -268,7 +268,7 @@ public class ItemSearchMenuConfigCommand {
                             List<String> blacklist = config.getBlacklistAsString();
                             config.sendBlacklistListHeader(sender);
                             for (String condition : blacklist){
-                                sender.sendMessage(Component.text(" - " + condition, NamedTextColor.GREEN));
+                                sender.sendMessage(Component.text(" • " + condition, NamedTextColor.GREEN));
                             }
                             return blacklist.size();
                         })
@@ -308,7 +308,7 @@ public class ItemSearchMenuConfigCommand {
     private static void listCategoryConditions(ItemCategory category, Audience audience){
         ItemSearchMenuPlugin.get().getItemSearchMenuConfig().sendCategoryConditionListHeader(category, audience);
         for (ItemCondition condition : category.filter()){
-            Component line = Component.text(" - " + condition.asString(), NamedTextColor.GREEN);
+            Component line = Component.text(" • " + condition.asString(), NamedTextColor.GREEN);
             audience.sendMessage(line);
         }
     }

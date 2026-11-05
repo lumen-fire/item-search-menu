@@ -147,7 +147,7 @@ public class ItemSearchMenuConfig {
     }
 
     public void sendCategoryInfoHeader(ItemCategory category, Audience target){
-        sendMessage("category.info.header", "<green><b><u>Info for category <category>", categoryReplacer(category).build(), target);
+        sendMessage("category.info.header", "<green><b>Info for category <category>", categoryReplacer(category).build(), target);
     }
 
     public void sendCategoryInfoSlot(ItemCategory category, Audience target){
