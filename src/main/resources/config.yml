@@ -1,4 +1,38 @@
-categories: {}
+categories:
+  '5':
+    filter:
+      - '#swords'
+      - '#spears'
+      - '#axes'
+      - bow
+      - minecraft:crossbow
+      - mace
+      - minecraft:trident
+      - minecraft:shield
+      - minecraft:wind_charge
+      - minecraft:arrow
+    icon:
+      ==: org.bukkit.inventory.ItemStack
+      DataVersion: 4671
+      id: minecraft:iron_sword
+      count: 1
+      schema_version: 1
+    display-name: <gray>Weapons
+blacklist:
+  - minecraft:bedrock
+  - minecraft:command_block
+  - minecraft:command_block_minecart
+  - minecraft:repeating_command_block
+  - minecraft:chain_command_block
+  - minecraft:light
+  - minecraft:test_block
+  - minecraft:test_instance_block
+  - minecraft:structure_block
+  - minecraft:structure_void
+  - minecraft:barrier
+  - minecraft:end_portal_frame
+  # Spawn Eggs
+  - '*[minecraft:entity_data]'
 messages:
   reload: <green>Reloaded the item-search-menu plugin
   version: <green>Item search menu is running version <version>
