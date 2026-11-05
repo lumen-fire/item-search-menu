@@ -1,5 +1,7 @@
 package me.lumen.itemSearchMenu;
 
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import me.lumen.itemSearchMenu.commands.ItemSearchMenuConfigCommand;
 import me.lumen.itemSearchMenu.config.ItemSearchMenuConfig;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -11,6 +13,7 @@ public final class ItemSearchMenuPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        commands();
     }
 
     public ItemSearchMenuConfig getItemSearchMenuConfig(){
@@ -19,5 +22,11 @@ public final class ItemSearchMenuPlugin extends JavaPlugin {
 
     public static ItemSearchMenuPlugin get(){
         return instance;
+    }
+
+    private void commands(){
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event ->
+                event.registrar().register(ItemSearchMenuConfigCommand.createCommand(), "The main plugin command, used for configuration, etc")
+        );
     }
 }

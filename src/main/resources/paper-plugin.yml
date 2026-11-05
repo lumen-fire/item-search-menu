@@ -4,3 +4,36 @@ main: me.lumen.itemSearchMenu.ItemSearchMenuPlugin
 api-version: '1.21'
 authors: [ Lumen-Fire ]
 description: A menu to search for items to get
+permissions:
+  # Categories
+  item-search-menu.plugin-command.category.create:
+    description: Allows creating a category with /itemsearchmenu categories create <slot> <name>
+  item-search-menu.plugin-command.category.delete:
+    description: Allows deleting a category with /itemsearchmenu categories delete <slot>
+  item-search-menu.plugin-command.category.info:
+    description: Allows showing info for a category with /itemsearchmenu categories info <slot>
+  item-search-menu.plugin-command.category.list:
+    description: Allows listing categories with /itemsearchmenu categories list
+  item-search-menu.plugin-command.category.edit.name:
+    description: Allows setting the name of a category with /itemsearchmenu categories edit <slot> name <minimessage>
+  item-search-menu.plugin-command.category.edit.icon:
+    description: Allows setting the icon of a category with /itemsearchmenu categories edit <slot> icon <item>
+  item-search-menu.plugin-command.category.edit.condition.add:
+    description: Allows adding a condition to a category with /itemsearchmenu categories edit <slot> conditions add <item-condition>
+  item-search-menu.plugin-command.category.edit.condition.remove:
+    description: Allows removing a condition from a category with /itemsearchmenu categories edit <slot> conditions remove <item-condition>
+  item-search-menu.plugin-command.category.edit.condition.list:
+    description: Allows listing conditions for a category with /itemsearchmenu categories edit <slot> conditions list
+  # Blacklist
+  item-search-menu.plugin-command.blacklist.add:
+    description: Allows adding blacklist conditions with /itemsearchmenu blacklist add <item-condition>
+  item-search-menu.plugin-command.blacklist.remove:
+    description: Allows removing blacklist conditions with /itemsearchmenu blacklist remove <item-condition>
+  item-search-menu.plugin-command.blacklist.list:
+    description: Allows listing blacklist conditions with /itemsearchmenu blacklist list
+  # Version, reload
+  item-search-menu.plugin-command.version:
+    description: Allows viewing the plugin version with /itemsearchmenu version
+  item-search-menu.plugin-command.reload:
+    description: Allows reloading the plugin with /itemsearchmenu reload
+

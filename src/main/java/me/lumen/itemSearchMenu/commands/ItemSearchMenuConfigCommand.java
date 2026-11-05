@@ -27,14 +27,18 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 public class ItemSearchMenuConfigCommand {
+    //errors
     private static final Dynamic2CommandExceptionType ITEM_CONDITION_ALREADY_EXISTS = new Dynamic2CommandExceptionType((a, b) ->
             MessageComponentSerializer.message().serialize(Component.text("Item condition " + a + " already exists in category ").append((Component) b))
     );
@@ -52,10 +56,42 @@ public class ItemSearchMenuConfigCommand {
     );
 
 
+    //perms
+    private static final Predicate<CommandSourceStack> CATEGORY_CREATE = hasPermission("item-search-menu.plugin-command.category.create");
+    private static final Predicate<CommandSourceStack> CATEGORY_DELETE = hasPermission("item-search-menu.plugin-command.category.delete");
+
+    private static final Predicate<CommandSourceStack> CATEGORY_EDIT_NAME = hasPermission("item-search-menu.plugin-command.category.edit.name");
+    private static final Predicate<CommandSourceStack> CATEGORY_EDIT_ICON = hasPermission("item-search-menu.plugin-command.category.edit.icon");
+
+    private static final Predicate<CommandSourceStack> CATEGORY_EDIT_CONDITION_ADD = hasPermission("item-search-menu.plugin-command.category.edit.condition.add");
+    private static final Predicate<CommandSourceStack> CATEGORY_EDIT_CONDITION_REMOVE = hasPermission("item-search-menu.plugin-command.category.edit.condition.remove");
+    private static final Predicate<CommandSourceStack> CATEGORY_EDIT_CONDITION_LIST = hasPermission("item-search-menu.plugin-command.category.edit.condition.list");
+
+    private static final Predicate<CommandSourceStack> CATEGORY_EDIT_CONDITION = CATEGORY_EDIT_CONDITION_ADD.or(CATEGORY_EDIT_CONDITION_REMOVE).or(CATEGORY_EDIT_CONDITION_LIST);
+    private static final Predicate<CommandSourceStack> CATEGORY_EDIT = CATEGORY_EDIT_CONDITION.or(CATEGORY_EDIT_NAME).or(CATEGORY_EDIT_ICON);
+
+    private static final Predicate<CommandSourceStack> CATEGORY_INFO = hasPermission("item-search-menu.plugin-command.category.info");
+    private static final Predicate<CommandSourceStack> CATEGORY_LIST = hasPermission("item-search-menu.plugin-command.category.list");
+
+    private static final Predicate<CommandSourceStack> CATEGORY = CATEGORY_CREATE.or(CATEGORY_DELETE).or(CATEGORY_EDIT).or(CATEGORY_INFO).or(CATEGORY_LIST);
+
+    private static final Predicate<CommandSourceStack> BLACKLIST_ADD = hasPermission("item-search-menu.plugin-command.blacklist.add");
+    private static final Predicate<CommandSourceStack> BLACKLIST_REMOVE = hasPermission("item-search-menu.plugin-command.blacklist.remove");
+    private static final Predicate<CommandSourceStack> BLACKLIST_LIST = hasPermission("item-search-menu.plugin-command.blacklist.list");
+
+    private static final Predicate<CommandSourceStack> BLACKLIST = BLACKLIST_ADD.or(BLACKLIST_REMOVE).or(BLACKLIST_LIST);
+
+    private static final Predicate<CommandSourceStack> VERSION = hasPermission("item-search-menu.plugin-command.version");
+    private static final Predicate<CommandSourceStack> RELOAD = hasPermission("item-search-menu.plugin-command.reload");
+
+    private static final Predicate<CommandSourceStack> COMMAND = CATEGORY.or(BLACKLIST).or(VERSION).or(RELOAD);
+
 
     public static LiteralCommandNode<CommandSourceStack> createCommand(){
         LiteralArgumentBuilder<CommandSourceStack> categoriesNode = Commands.literal("categories")
+                .requires(CATEGORY)
                 .then(Commands.literal("create")
+                        .requires(CATEGORY_CREATE)
                         .then(Commands.argument("slot", IntegerArgumentType.integer(1, 9))
                                 .suggests(ItemSearchMenuConfigCommand::suggestAvailableSlots)
                                 .then(Commands.argument("name", MiniMessageArg.argument())
@@ -71,6 +107,7 @@ public class ItemSearchMenuConfigCommand {
                         )
                 )
                 .then(Commands.literal("delete")
+                        .requires(CATEGORY_DELETE)
                         .then(Commands.argument("slot", ItemCategoryArg.argument())
                                 .executes(context -> {
                                     ItemCategory category = ItemCategoryArg.getItemCategory(context, "slot");
@@ -82,8 +119,10 @@ public class ItemSearchMenuConfigCommand {
                         )
                 )
                 .then(Commands.literal("edit")
+                        .requires(CATEGORY_EDIT)
                         .then(Commands.argument("slot", ItemCategoryArg.argument())
                                 .then(Commands.literal("name")
+                                        .requires(CATEGORY_EDIT_NAME)
                                         .then(Commands.argument("minimessage", MiniMessageArg.argument())
                                                 .executes(context -> {
                                                     ItemCategory category = ItemCategoryArg.getItemCategory(context, "slot");
@@ -95,6 +134,7 @@ public class ItemSearchMenuConfigCommand {
                                         )
                                 )
                                 .then(Commands.literal("icon")
+                                        .requires(CATEGORY_EDIT_ICON)
                                         .then(Commands.argument("item", ArgumentTypes.itemStack())
                                                 .executes(context -> {
                                                     ItemCategory category = ItemCategoryArg.getItemCategory(context, "slot");
@@ -106,7 +146,9 @@ public class ItemSearchMenuConfigCommand {
                                         )
                                 )
                                 .then(Commands.literal("conditions")
+                                        .requires(CATEGORY_EDIT_CONDITION)
                                         .then(Commands.literal("add")
+                                                .requires(CATEGORY_EDIT_CONDITION_ADD)
                                                 .then(Commands.argument("item-condition", ItemTypeConditionArg.argument())
                                                         .executes(context -> {
                                                             ItemCategory category = ItemCategoryArg.getItemCategory(context, "slot");
@@ -122,6 +164,7 @@ public class ItemSearchMenuConfigCommand {
                                                 )
                                         )
                                         .then(Commands.literal("remove")
+                                                .requires(CATEGORY_EDIT_CONDITION_REMOVE)
                                                 .then(Commands.argument("item-condition", ItemTypeConditionArg.argument())
                                                         .suggests((context, builder) -> {
                                                             ItemCategory category = ItemCategoryArg.getItemCategory(context, "slot");
@@ -146,6 +189,7 @@ public class ItemSearchMenuConfigCommand {
                                                 )
                                         )
                                         .then(Commands.literal("list")
+                                                .requires(CATEGORY_EDIT_CONDITION_LIST)
                                                 .executes(context -> {
                                                     ItemCategory category = ItemCategoryArg.getItemCategory(context, "slot");
                                                     CommandSender sender = context.getSource().getSender();
@@ -157,6 +201,7 @@ public class ItemSearchMenuConfigCommand {
                         )
                 )
                 .then(Commands.literal("info")
+                        .requires(CATEGORY_INFO)
                         .then(Commands.argument("slot", ItemCategoryArg.argument())
                                 .executes(context -> {
                                     ItemCategory category = ItemCategoryArg.getItemCategory(context, "slot");
@@ -173,6 +218,7 @@ public class ItemSearchMenuConfigCommand {
                         )
                 )
                 .then(Commands.literal("list")
+                        .requires(CATEGORY_LIST)
                         .executes(context -> {
                             CommandSender sender = context.getSource().getSender();
                             ItemSearchMenuConfig config = ItemSearchMenuPlugin.get().getItemSearchMenuConfig();
@@ -188,7 +234,9 @@ public class ItemSearchMenuConfigCommand {
                 );
 
         LiteralArgumentBuilder<CommandSourceStack> blacklistNode = Commands.literal("blacklist")
+                .requires(BLACKLIST)
                 .then(Commands.literal("add")
+                        .requires(BLACKLIST_ADD)
                         .then(Commands.argument("item-condition", ItemTypeConditionArg.argument())
                                 .executes(context ->
                                         blacklistOperation(context, (config, condition) -> !config.isBlacklisted(condition), ALREADY_IN_BLACKLIST, ItemSearchMenuConfig::addBlacklistCondition, ItemSearchMenuConfig::sendBlacklistConditionAdded)
@@ -196,6 +244,7 @@ public class ItemSearchMenuConfigCommand {
                         )
                 )
                 .then(Commands.literal("remove")
+                        .requires(BLACKLIST_REMOVE)
                         .then(Commands.argument("item-condition", ItemTypeConditionArg.argument())
                                 .suggests((context, builder) -> {
                                     ItemSearchMenuPlugin.get().getItemSearchMenuConfig().getBlacklistAsString().forEach(builder::suggest);
@@ -207,6 +256,7 @@ public class ItemSearchMenuConfigCommand {
                         )
                 )
                 .then(Commands.literal("list")
+                        .requires(BLACKLIST_LIST)
                         .executes(context -> {
                             CommandSender sender = context.getSource().getSender();
                             ItemSearchMenuConfig config = ItemSearchMenuPlugin.get().getItemSearchMenuConfig();
@@ -220,7 +270,9 @@ public class ItemSearchMenuConfigCommand {
                 );
 
         return Commands.literal("itemsearchmenu")
+                .requires(COMMAND)
                 .then(Commands.literal("reload")
+                        .requires(RELOAD)
                         .executes(context -> {
                             ItemSearchMenuPlugin plugin = ItemSearchMenuPlugin.get();
                             plugin.reloadConfig();
@@ -229,6 +281,7 @@ public class ItemSearchMenuConfigCommand {
                         })
                 )
                 .then(Commands.literal("version")
+                        .requires(VERSION)
                         .executes(context -> {
                             ItemSearchMenuPlugin.get().getItemSearchMenuConfig().sendVersion(context.getSource().getSender());
                             return Command.SINGLE_SUCCESS;
@@ -266,6 +319,11 @@ public class ItemSearchMenuConfigCommand {
         message.send(config, context.getSource().getSender(), condition);
         operation.accept(config, condition);
         return Command.SINGLE_SUCCESS;
+    }
+
+    @Contract(pure = true)
+    private static @NotNull Predicate<CommandSourceStack> hasPermission(String permission){
+        return Commands.restricted(source -> source.getSender().hasPermission(permission));
     }
 
     private interface BlacklistOperationMessage {
