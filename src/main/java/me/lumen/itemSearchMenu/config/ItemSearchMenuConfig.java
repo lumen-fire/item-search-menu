@@ -182,6 +182,17 @@ public class ItemSearchMenuConfig {
         sendMessage("blacklist.remove", "<yellow>Removed blacklist condition <condition>", conditionReplacer(removed).build(), target);
     }
 
+    public void sendReload(Audience target){
+        sendMessage("reload", "<green>Reloaded the item-search-menu plugin", TagResolver.builder().build(), target);
+    }
+
+    public void sendVersion(Audience target){
+        TagResolver resolver = TagResolver.builder()
+                .tag("version", Tag.selfClosingInserting(Component.text(plugin.getPluginMeta().getVersion())))
+                .build();
+        sendMessage("version", "<green>Item search menu is running version <version>", resolver, target);
+    }
+
     private static TagResolver.@NotNull Builder categoryReplacer(@NotNull ItemCategory category){
         return TagResolver.builder().tag("category", Tag.selfClosingInserting(category.displayName()));
     }

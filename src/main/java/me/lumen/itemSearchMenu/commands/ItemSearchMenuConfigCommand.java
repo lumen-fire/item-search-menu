@@ -220,8 +220,20 @@ public class ItemSearchMenuConfigCommand {
                 );
 
         return Commands.literal("itemsearchmenu")
-                .then(Commands.literal("reload"))
-                .then(Commands.literal("version"))
+                .then(Commands.literal("reload")
+                        .executes(context -> {
+                            ItemSearchMenuPlugin plugin = ItemSearchMenuPlugin.get();
+                            plugin.reloadConfig();
+                            plugin.getItemSearchMenuConfig().sendReload(context.getSource().getSender());
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
+                .then(Commands.literal("version")
+                        .executes(context -> {
+                            ItemSearchMenuPlugin.get().getItemSearchMenuConfig().sendVersion(context.getSource().getSender());
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
                 .then(categoriesNode)
                 .then(blacklistNode)
                 .build();
