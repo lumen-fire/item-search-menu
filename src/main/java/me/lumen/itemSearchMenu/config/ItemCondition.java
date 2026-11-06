@@ -35,8 +35,8 @@ public class ItemCondition {
         return asString;
     }
 
-    public Predicate<ItemStack> condition() {
-        return condition;
+    public boolean test(ItemStack item){
+        return condition.test(item);
     }
 
     @Contract("_ -> new")

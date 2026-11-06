@@ -36,4 +36,7 @@ permissions:
     description: Allows viewing the plugin version with /itemsearchmenu version
   item-search-menu.plugin-command.reload:
     description: Allows reloading the plugin with /itemsearchmenu reload
+  # Menu Opening Command
+  item-search-menu.open-command:
+    description: Allows opening the item menu with the command configured in config.yml
 

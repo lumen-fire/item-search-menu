@@ -100,6 +100,10 @@ public class ItemSearchMenuConfig {
         return getBlacklistAsString().contains(condition.asString());
     }
 
+    public String getMenuOpenCommand(){
+        return plugin.getConfig().getString("open-command", "items");
+    }
+
     private void sendMessage(String key, String def, @NotNull TagResolver resolver, Audience target){
         String raw = getMessagesSection().getString(key, def);
         Component message = MiniMessage.miniMessage().deserialize(raw, target, resolver);

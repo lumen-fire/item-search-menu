@@ -42,7 +42,7 @@ public class ItemCategory {
     }
 
     public void removeItemCondition(ItemCondition condition){
-        conditions.remove(condition);
+        conditions.removeIf(looped -> looped.asString().equals(condition.asString()));
         ItemSearchMenuPlugin.get().getItemSearchMenuConfig().saveCategory(this);
     }
 

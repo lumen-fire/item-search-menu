@@ -31,6 +31,7 @@ blacklist:
   - minecraft:structure_void
   - minecraft:barrier
   - minecraft:end_portal_frame
+  - minecraft:air
   # Spawn Eggs
   - '*[minecraft:entity_data]'
 messages:
@@ -56,4 +57,4 @@ messages:
     add: <green>Added blacklist condition <condition>
     remove: <yellow>Removed blacklist condition <condition>
     list-header: <green><b>Blacklist conditions
-
+open-command: items
