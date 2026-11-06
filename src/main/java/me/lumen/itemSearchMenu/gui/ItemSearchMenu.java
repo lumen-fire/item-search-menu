@@ -29,6 +29,7 @@ public class ItemSearchMenu implements InventoryHolder {
     private static final ItemStack BACK_BUTTON = getButton('←');
     private static final ItemStack NEXT_BUTTON = getButton('→');
     private static final ItemStack ALL_BUTTON = getButton(Component.text("All", NamedTextColor.GREEN), Material.SHULKER_BOX);
+    private static final ItemStack DELETE_ITEM_BUTTON = getButton(Component.text("Delete item", NamedTextColor.RED), Material.BARRIER);
 
     private final Inventory inventory;
     private int page = 0;
@@ -83,6 +84,7 @@ public class ItemSearchMenu implements InventoryHolder {
         }
 
         inventory.setItem(45, BACK_BUTTON);
+        inventory.setItem(52, DELETE_ITEM_BUTTON);
         inventory.setItem(53, NEXT_BUTTON);
         inventory.setItem(49, ALL_BUTTON);
 
@@ -130,10 +132,8 @@ public class ItemSearchMenu implements InventoryHolder {
                 }
                 //all items
                 case 49 -> open(player);
-                //clear inv
-                case 52 -> {
-                    //TODO: Clear inv button (barrier icon)
-                }
+                //delete item
+                case 52 -> player.setItemOnCursor(null);
                 //next
                 case 53 -> {
                     player.playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1, 1);
@@ -148,7 +148,12 @@ public class ItemSearchMenu implements InventoryHolder {
         //items
         ItemStack item = items[page][slot - 9];
         if (item == null) return;
-        player.setItemOnCursor(item);
+        ItemStack cursor = player.getItemOnCursor();
+        if (cursor.getType() == item.getType()){
+            player.setItemOnCursor(cursor.add());
+        } else {
+            player.setItemOnCursor(item);
+        }
     }
 
     public static void open(Player viewer){
