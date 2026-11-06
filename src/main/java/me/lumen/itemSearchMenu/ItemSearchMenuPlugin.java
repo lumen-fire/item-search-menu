@@ -1,12 +1,16 @@
 package me.lumen.itemSearchMenu;
 
 import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.connection.PlayerGameConnection;
+import io.papermc.paper.dialog.DialogResponseView;
+import io.papermc.paper.event.player.PlayerCustomClickEvent;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import me.lumen.itemSearchMenu.commands.ItemSearchMenuCommand;
 import me.lumen.itemSearchMenu.commands.ItemSearchMenuConfigCommand;
 import me.lumen.itemSearchMenu.config.ItemSearchMenuConfig;
 import me.lumen.itemSearchMenu.gui.ItemSearchMenu;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -47,7 +51,7 @@ public final class ItemSearchMenuPlugin extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onInventoryClick(@NotNull InventoryClickEvent event){
+    void onInventoryClick(@NotNull InventoryClickEvent event){
         Inventory clicked = event.getClickedInventory();
         if (clicked == null) return;
         if (clicked.getHolder() instanceof ItemSearchMenu menu){
@@ -57,5 +61,24 @@ public final class ItemSearchMenuPlugin extends JavaPlugin implements Listener {
         if (event.getInventory().getHolder() instanceof ItemSearchMenu && event.isShiftClick()){
             event.setCancelled(true);
         }
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    @EventHandler
+    void onDialogSubmit(@NotNull PlayerCustomClickEvent event){
+        if (!event.getIdentifier().equals(ItemSearchMenuBootstrap.getActionKey())) return;
+        if (!(event.getCommonConnection() instanceof PlayerGameConnection connection)) return;
+
+        Player player = connection.getPlayer();
+        DialogResponseView view = event.getDialogResponseView();
+        assert view != null;
+
+        String searchTerm = view.getText(ItemSearchMenuBootstrap.INPUT_KEY);
+        if (searchTerm == null || searchTerm.isEmpty()) {
+            player.showDialog(ItemSearchMenuBootstrap.getDialog());
+            return;
+        }
+
+        ItemSearchMenu.open(player, searchTerm);
     }
 }

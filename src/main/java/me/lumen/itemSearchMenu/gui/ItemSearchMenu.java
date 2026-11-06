@@ -1,5 +1,6 @@
 package me.lumen.itemSearchMenu.gui;
 
+import me.lumen.itemSearchMenu.ItemSearchMenuBootstrap;
 import me.lumen.itemSearchMenu.ItemSearchMenuPlugin;
 import me.lumen.itemSearchMenu.config.ItemCategory;
 import me.lumen.itemSearchMenu.config.ItemCondition;
@@ -28,8 +29,9 @@ public class ItemSearchMenu implements InventoryHolder {
     private static final List<ItemStack> ITEMS_SORTED = getItemsSorted();
     private static final ItemStack BACK_BUTTON = getButton('←');
     private static final ItemStack NEXT_BUTTON = getButton('→');
-    private static final ItemStack ALL_BUTTON = getButton(Component.text("All", NamedTextColor.GREEN), Material.SHULKER_BOX);
+    private static final ItemStack ALL_BUTTON = getButton(Component.text("All items", NamedTextColor.GREEN), Material.SHULKER_BOX);
     private static final ItemStack DELETE_ITEM_BUTTON = getButton(Component.text("Delete item", NamedTextColor.RED), Material.BARRIER);
+    private static final ItemStack SEARCH_BUTTON = getButton(Component.text("Search", NamedTextColor.LIGHT_PURPLE), Material.SPYGLASS);
 
     private final Inventory inventory;
     private int page = 0;
@@ -73,17 +75,11 @@ public class ItemSearchMenu implements InventoryHolder {
 
         for (ItemCategory category : ItemSearchMenuPlugin.get().getItemSearchMenuConfig().getItemCategories()){
             assert category.slot() < 10;
-
-            ItemStack icon = category.icon();
-            ItemMeta meta = icon.getItemMeta();
-            meta.displayName(category.displayName());
-            meta.setEnchantmentGlintOverride(false);
-            icon.setItemMeta(meta);
-
-            inventory.setItem(category.slot() - 1, icon);
+            inventory.setItem(category.slot() - 1, category.icon());
         }
 
         inventory.setItem(45, BACK_BUTTON);
+        inventory.setItem(46, SEARCH_BUTTON);
         inventory.setItem(52, DELETE_ITEM_BUTTON);
         inventory.setItem(53, NEXT_BUTTON);
         inventory.setItem(49, ALL_BUTTON);
@@ -127,9 +123,7 @@ public class ItemSearchMenu implements InventoryHolder {
                     updatePage();
                 }
                 //search
-                case 46 -> {
-                    //TODO: Search dialog gui
-                }
+                case 46 -> player.showDialog(ItemSearchMenuBootstrap.getDialog());
                 //all items
                 case 49 -> open(player);
                 //delete item
