@@ -2,6 +2,7 @@ package me.lumen.itemSearchMenu.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.LiteralMessage;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -20,7 +21,14 @@ public class ItemSearchMenuCommand {
                     ItemSearchMenu.open(player);
                     return Command.SINGLE_SUCCESS;
                 })
-                //TODO: Argument to open a specific category
+                .then(Commands.argument("search", StringArgumentType.greedyString())
+                        .executes(context -> {
+                            if (!(context.getSource().getExecutor() instanceof Player player)) throw NOT_PLAYER.create();
+                            String search = StringArgumentType.getString(context, "search");
+                            ItemSearchMenu.open(player, search);
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
                 .build();
     }
 }

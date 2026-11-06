@@ -159,7 +159,7 @@ public class ItemSearchMenu implements InventoryHolder {
     public static void open(Player viewer){
         ItemSearchMenuConfig config = ItemSearchMenuPlugin.get().getItemSearchMenuConfig();
         List<ItemCondition> blacklist = config.getBlacklist();
-        ItemSearchMenu menu = new ItemSearchMenu(itemStack -> isNotBlacklisted(itemStack, blacklist), Component.text("Item Search Menu", NamedTextColor.GREEN));
+        ItemSearchMenu menu = new ItemSearchMenu(itemStack -> isNotBlacklisted(itemStack, blacklist), Component.text("Item Search Menu", NamedTextColor.LIGHT_PURPLE));
         menu.show(viewer);
     }
 
@@ -167,6 +167,12 @@ public class ItemSearchMenu implements InventoryHolder {
         List<ItemCondition> blacklist = ItemSearchMenuPlugin.get().getItemSearchMenuConfig().getBlacklist();
         List<ItemCondition> filter = category.filter();
         ItemSearchMenu menu = new ItemSearchMenu(item -> isNotBlacklisted(item, blacklist) && anyMatch(item, filter), category.displayName());
+        menu.show(viewer);
+    }
+
+    public static void open(Player viewer, String searchTerm){
+        List<ItemCondition> blacklist = ItemSearchMenuPlugin.get().getItemSearchMenuConfig().getBlacklist();
+        ItemSearchMenu menu = new ItemSearchMenu(item -> isNotBlacklisted(item, blacklist) && matches(item, searchTerm), Component.text(searchTerm + " \uD83D\uDD0E", NamedTextColor.LIGHT_PURPLE));
         menu.show(viewer);
     }
 
@@ -179,6 +185,10 @@ public class ItemSearchMenu implements InventoryHolder {
             if (condition.test(item)) return true;
         }
         return false;
+    }
+
+    private static boolean matches(@NotNull ItemStack item, String searchTerm){
+        return item.getType().getKey().asString().contains(searchTerm);
     }
 
     private static @NotNull ItemStack getGreyStainedGlass(){
