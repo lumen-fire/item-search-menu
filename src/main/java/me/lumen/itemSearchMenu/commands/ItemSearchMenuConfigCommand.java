@@ -59,6 +59,14 @@ public class ItemSearchMenuConfigCommand {
             new LiteralMessage("Item condition " + o + " is not in the blacklist")
     );
 
+    private static final DynamicCommandExceptionType ALREADY_AN_EXTRA_ITEM = new DynamicCommandExceptionType(o ->
+            MessageComponentSerializer.message().serialize(Component.empty().append((Component) o).append(Component.text(" is already an extra item")))
+    );
+
+    private static final DynamicCommandExceptionType NOT_AN_EXTRA_ITEM = new DynamicCommandExceptionType(o ->
+            MessageComponentSerializer.message().serialize(Component.empty().append((Component) o).append(Component.text(" is not an extra item")))
+    );
+
 
     //perms
     private static final Predicate<CommandSourceStack> CATEGORY_CREATE = hasPermission("item-search-menu.plugin-command.category.create");
@@ -85,10 +93,16 @@ public class ItemSearchMenuConfigCommand {
 
     private static final Predicate<CommandSourceStack> BLACKLIST = BLACKLIST_ADD.or(BLACKLIST_REMOVE).or(BLACKLIST_LIST);
 
+    private static final Predicate<CommandSourceStack> EXTRA_ITEMS_ADD = hasPermission("item-search-menu.plugin-command.extra-items.add");
+    private static final Predicate<CommandSourceStack> EXTRA_ITEMS_REMOVE = hasPermission("item-search-menu.plugin-command.extra-items.remove");
+    private static final Predicate<CommandSourceStack> EXTRA_ITEMS_LIST = hasPermission("item-search-menu.plugin-command.extra-items.list");
+
+    private static final Predicate<CommandSourceStack> EXTRA_ITEMS = EXTRA_ITEMS_ADD.or(EXTRA_ITEMS_REMOVE).or(EXTRA_ITEMS_LIST);
+
     private static final Predicate<CommandSourceStack> VERSION = hasPermission("item-search-menu.plugin-command.version");
     private static final Predicate<CommandSourceStack> RELOAD = hasPermission("item-search-menu.plugin-command.reload");
 
-    private static final Predicate<CommandSourceStack> COMMAND = CATEGORY.or(BLACKLIST).or(VERSION).or(RELOAD);
+    private static final Predicate<CommandSourceStack> COMMAND = CATEGORY.or(EXTRA_ITEMS).or(BLACKLIST).or(VERSION).or(RELOAD);
 
 
     public static LiteralCommandNode<CommandSourceStack> createCommand(){
@@ -274,6 +288,54 @@ public class ItemSearchMenuConfigCommand {
                         })
                 );
 
+        LiteralArgumentBuilder<CommandSourceStack> extraItemsNode = Commands.literal("extra-items")
+                .requires(EXTRA_ITEMS)
+                .then(Commands.literal("add")
+                        .requires(EXTRA_ITEMS_ADD)
+                        .then(Commands.argument("item", ArgumentTypes.itemStack())
+                                .executes(context -> {
+                                    ItemStack item = context.getArgument("item", ItemStack.class);
+                                    ItemSearchMenuConfig config = ItemSearchMenuPlugin.get().getItemSearchMenuConfig();
+                                    if (config.getExtraItems().contains(item)) throw ALREADY_AN_EXTRA_ITEM.create(item.displayName());
+                                    config.addExtraItem(item);
+                                    config.sendExtraItemAdded(context.getSource().getSender(), item);
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(Commands.literal("remove")
+                        .requires(EXTRA_ITEMS_REMOVE)
+                        .then(Commands.argument("item", ArgumentTypes.itemStack())
+                                .suggests((context, builder) -> {
+                                    for (ItemStack item : ItemSearchMenuPlugin.get().getItemSearchMenuConfig().getExtraItems()){
+                                        builder.suggest(item.getType().key().asString() + item.getItemMeta().getAsComponentString());
+                                    }
+                                    return builder.buildFuture();
+                                })
+                                .executes(context -> {
+                                    ItemStack item = context.getArgument("item", ItemStack.class);
+                                    ItemSearchMenuConfig config = ItemSearchMenuPlugin.get().getItemSearchMenuConfig();
+                                    if (!config.getExtraItems().contains(item)) throw NOT_AN_EXTRA_ITEM.create(item.displayName());
+                                    config.removeExtraItem(item);
+                                    config.sendExtraItemRemoved(context.getSource().getSender(), item);
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(Commands.literal("list")
+                        .requires(EXTRA_ITEMS_LIST)
+                        .executes(context -> {
+                            CommandSender sender = context.getSource().getSender();
+                            ItemSearchMenuConfig config = ItemSearchMenuPlugin.get().getItemSearchMenuConfig();
+                            config.sendExtraItemsListHeader(sender);
+                            List<ItemStack> items = config.getExtraItems();
+                            for (ItemStack item : items){
+                                sender.sendMessage(Component.text(" • ", NamedTextColor.GREEN).append(item.displayName()));
+                            }
+                            return items.size();
+                        })
+                );
+
         return Commands.literal("itemsearchmenu")
                 .requires(COMMAND)
                 .then(Commands.literal("reload")
@@ -294,6 +356,7 @@ public class ItemSearchMenuConfigCommand {
                 )
                 .then(categoriesNode)
                 .then(blacklistNode)
+                .then(extraItemsNode)
                 .build();
     }
 

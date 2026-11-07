@@ -7,18 +7,17 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.text.minimessage.tag.TagPattern;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NonNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 public class ItemSearchMenuConfig {
@@ -104,6 +103,35 @@ public class ItemSearchMenuConfig {
         return plugin.getConfig().getString("open-command", "items");
     }
 
+    private void extraItemsOperation(@NotNull BiConsumer<List<Map<?,?>>, Map<String,Object>> operation, @NotNull ItemStack item){
+        List<Map<?, ?>> maps = getExtraItemMaps();
+        operation.accept(maps, item.serialize());
+        plugin.getConfig().set("extra-items", maps);
+        plugin.saveConfig();
+    }
+
+    public List<ItemStack> getExtraItems(){
+        List<Map<?, ?>> maps = getExtraItemMaps();
+        List<ItemStack> items = new ArrayList<>();
+        for (Map<?, ?> unknownMap : maps){
+            @SuppressWarnings("unchecked") Map<String, Object> map = (Map<String, Object>) unknownMap;
+            items.add(ItemStack.deserialize(map));
+        }
+        return items;
+    }
+
+    private @NotNull List<Map<?, ?>> getExtraItemMaps(){
+        return plugin.getConfig().getMapList("extra-items");
+    }
+
+    public void addExtraItem(ItemStack itemStack){
+        extraItemsOperation(List::add, itemStack);
+    }
+
+    public void removeExtraItem(ItemStack itemStack){
+        extraItemsOperation(List::remove, itemStack);
+    }
+
     private void sendMessage(String key, String def, @NotNull TagResolver resolver, Audience target){
         String raw = getMessagesSection().getString(key, def);
         Component message = MiniMessage.miniMessage().deserialize(raw, target, resolver);
@@ -186,6 +214,18 @@ public class ItemSearchMenuConfig {
         sendMessage("blacklist.remove", "<yellow>Removed blacklist condition <condition>", conditionReplacer(removed).build(), target);
     }
 
+    public void sendExtraItemAdded(Audience target, ItemStack added){
+        sendMessage("extra-item.add", "<green>Added extra item <item>", itemReplacer(added), target);
+    }
+
+    public void sendExtraItemRemoved(Audience target, ItemStack removed){
+        sendMessage("extra-item.remove", "<yellow>Removed extra item <item>", itemReplacer(removed), target);
+    }
+
+    public void sendExtraItemsListHeader(Audience target){
+        sendMessage("extra-item.list-header", "<green><b>Extra items", TagResolver.builder().build(), target);
+    }
+
     public void sendReload(Audience target){
         sendMessage("reload", "<green>Reloaded the item-search-menu plugin", TagResolver.builder().build(), target);
     }
@@ -210,7 +250,15 @@ public class ItemSearchMenuConfig {
     }
 
     private static @NotNull TagResolver iconReplacer(@NotNull ItemCategory category){
-        return TagResolver.builder().tag("icon", Tag.selfClosingInserting(category.icon().displayName())).build();
+        return itemReplacer("icon", category.icon());
+    }
+
+    private static @NotNull TagResolver itemReplacer(ItemStack item){
+        return itemReplacer("item", item);
+    }
+
+    private static @NotNull TagResolver itemReplacer(@TagPattern String tag, @NotNull ItemStack item){
+        return TagResolver.builder().tag(tag, Tag.selfClosingInserting(item.displayName())).build();
     }
 
     private ConfigurationSection getCategoriesSection(){

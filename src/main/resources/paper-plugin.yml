@@ -32,6 +32,13 @@ permissions:
     description: Allows removing blacklist conditions with /itemsearchmenu blacklist remove <item-condition>
   item-search-menu.plugin-command.blacklist.list:
     description: Allows listing blacklist conditions with /itemsearchmenu blacklist list
+  # Extra Items
+  item-search-menu.plugin-command.extra-items.add:
+    description: Allows adding extra items with /itemsearchmenu extra-items add <item>
+  item-search-menu.plugin-command.extra-items.remove:
+    description: Allows removing extra items with /itemsearchmenu extra-items remove <item>
+  item-search-menu.plugin-command.extra-items.list:
+    description: Allows listing extra items with /itemsearchmenu extra-items list
   # Version, reload
   item-search-menu.plugin-command.version:
     description: Allows viewing the plugin version with /itemsearchmenu version
