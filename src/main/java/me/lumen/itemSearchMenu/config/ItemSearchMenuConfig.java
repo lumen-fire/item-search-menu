@@ -1,5 +1,6 @@
 package me.lumen.itemSearchMenu.config;
 
+import me.lumen.itemSearchMenu.gui.ItemSearchMenu;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
@@ -108,6 +109,7 @@ public class ItemSearchMenuConfig {
         operation.accept(maps, item.serialize());
         plugin.getConfig().set("extra-items", maps);
         plugin.saveConfig();
+        ItemSearchMenu.reloadItemSorting();
     }
 
     public List<ItemStack> getExtraItems(){

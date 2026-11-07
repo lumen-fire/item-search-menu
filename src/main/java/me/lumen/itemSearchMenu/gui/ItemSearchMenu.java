@@ -144,7 +144,7 @@ public class ItemSearchMenu implements InventoryHolder {
         ItemStack item = items[page][slot - 9];
         if (item == null) return;
         ItemStack cursor = player.getItemOnCursor();
-        if (cursor.getType() == item.getType()){
+        if (cursor.asOne().equals(item)){
             player.setItemOnCursor(cursor.add());
         } else {
             player.setItemOnCursor(item);
