@@ -1,39 +1,5 @@
-categories:
-  '5':
-    filter:
-      - '#swords'
-      - '#spears'
-      - '#axes'
-      - bow
-      - minecraft:crossbow
-      - mace
-      - minecraft:trident
-      - minecraft:shield
-      - minecraft:wind_charge
-      - minecraft:arrow
-    icon:
-      ==: org.bukkit.inventory.ItemStack
-      DataVersion: 4671
-      id: minecraft:iron_sword
-      count: 1
-      schema_version: 1
-    display-name: <gray>Weapons
-blacklist:
-  - minecraft:bedrock
-  - minecraft:command_block
-  - minecraft:command_block_minecart
-  - minecraft:repeating_command_block
-  - minecraft:chain_command_block
-  - minecraft:light
-  - minecraft:test_block
-  - minecraft:test_instance_block
-  - minecraft:structure_block
-  - minecraft:structure_void
-  - minecraft:barrier
-  - minecraft:end_portal_frame
-  - minecraft:air
-  # Spawn Eggs
-  - '*[minecraft:entity_data]'
+# These are the customisable messages, currently you can only customise the command feedback, let me know if there are any other messages you want to customise
+# Minimessage (see https://docs.papermc.io/adventure/minimessage/format/) is used for formatting, NOT legacy ampersand encoding
 messages:
   reload: <green>Reloaded the item-search-menu plugin
   version: <green>Item search menu is running version <version>
@@ -61,4 +27,309 @@ messages:
     add: <green>Added extra item <item>
     remove: <yellow>Removed extra item <item>
     list-header: <green><b>Extra items
+# The categories of items
+# Each category is identified by what slot it is in
+# Categories are in the top row of the gui
+categories:
+  '5':
+    # A list of conditions in which items are allowed to be shown in this category
+    # This is importantly not a list of items, so adding "minecraft:diamond_sword[enchantments={sharpness:10}]" will not add a sharpness 10 diamond sword (unless it is in extra-items)
+    # See https://minecraft.wiki/w/Argument_types#minecraft:item_predicate for the format of each condition in the list
+    filter:
+      - '#swords'
+      - '#spears'
+      - '#axes'
+      - bow
+      - minecraft:crossbow
+      - mace
+      - minecraft:trident
+      - minecraft:shield
+      - minecraft:wind_charge
+      - minecraft:arrow
+    icon:
+      ==: org.bukkit.inventory.ItemStack
+      DataVersion: 4435
+      id: minecraft:iron_sword
+      count: 1
+      schema_version: 1
+    # A display name minimessage
+    display-name: <gray>Weapons
+# A list of disallowed conditions for items
+# If an item passes any of these conditions it will not show up in the item menu
+# See https://minecraft.wiki/w/Argument_types#minecraft:item_predicate for the format of each condition in the list
+blacklist:
+  - minecraft:bedrock
+  - minecraft:command_block
+  - minecraft:command_block_minecart
+  - minecraft:repeating_command_block
+  - minecraft:chain_command_block
+  - minecraft:light
+  - minecraft:test_block
+  - minecraft:test_instance_block
+  - minecraft:structure_block
+  - minecraft:structure_void
+  - minecraft:barrier
+  - minecraft:end_portal_frame
+  - minecraft:air
+  # Spawn Eggs
+  - '*[minecraft:entity_data]'
+# Sets the command used to open the item search menu
+# This requires restarting the server to be updated
 open-command: items
+# A list of items that are to be added to the menu
+# This is for adding items with custom nbt/components, that aren't actually their own item
+# By default this just adds the max level enchanted books, but you can use this to add extra potions, lower level enchanted books, etc
+# It is a fair bit easier to add and remove these with /itemsearchmenu extra-items (add|remove) <item> than doing it manually in the yaml
+extra-items:
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:sharpness":5}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:mending":1}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:unbreaking":3}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:vanishing_curse":1}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:protection":4}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:fire_protection":4}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:blast_protection":4}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:feather_falling":4}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:projectile_protection":4}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:respiration":3}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:aqua_affinity":1}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:thorns":3}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:depth_strider":3}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:frost_walker":2}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:soul_speed":3}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:swift_sneak":3}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:binding_curse":1}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:smite":5}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:bane_of_arthropods":5}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:knockback":2}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:fire_aspect":2}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:looting":3}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:sweeping_edge":3}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:depth_strider":5}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:breach":4}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:wind_burst":3}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:power":5}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:punch":2}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:flame":1}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:infinity":1}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:multishot":1}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:piercing":4}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:quick_charge":3}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:loyalty":3}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:impaling":5}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:riptide":3}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:channeling":1}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:efficiency":5}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:silk_touch":1}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:fortune":3}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:luck_of_the_sea":3}'
+    schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:lure":3}'
+    schema_version: 1

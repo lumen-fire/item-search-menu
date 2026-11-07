@@ -32,7 +32,7 @@ public class ItemSearchMenu implements InventoryHolder {
     private static final ItemStack DELETE_ITEM_BUTTON = getButton(Component.text("Delete item", NamedTextColor.RED), Material.BARRIER);
     private static final ItemStack SEARCH_BUTTON = getButton(Component.text("Search", NamedTextColor.LIGHT_PURPLE), Material.SPYGLASS);
 
-    private static List<ItemStack> sortedItems = getSortedItems();
+    private static List<ItemStack> sortedItems;
 
     private final Inventory inventory;
     private int page = 0;

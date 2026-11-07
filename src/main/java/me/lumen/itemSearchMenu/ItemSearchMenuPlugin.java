@@ -28,6 +28,7 @@ public final class ItemSearchMenuPlugin extends JavaPlugin implements Listener {
         instance = this;
         commands();
         events();
+        ItemSearchMenu.reloadItemSorting();
     }
 
     public ItemSearchMenuConfig getItemSearchMenuConfig(){
