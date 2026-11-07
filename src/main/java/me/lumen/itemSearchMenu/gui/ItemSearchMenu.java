@@ -5,10 +5,10 @@ import me.lumen.itemSearchMenu.ItemSearchMenuPlugin;
 import me.lumen.itemSearchMenu.config.ItemCategory;
 import me.lumen.itemSearchMenu.config.ItemCondition;
 import me.lumen.itemSearchMenu.config.ItemSearchMenuConfig;
-import net.kyori.adventure.key.Keyed;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Registry;
@@ -26,12 +26,13 @@ import java.util.function.Predicate;
 
 public class ItemSearchMenu implements InventoryHolder {
     private static final ItemStack GREY_STAINED_GLASS = getGreyStainedGlass();
-    private static final List<ItemStack> ITEMS_SORTED = getItemsSorted();
     private static final ItemStack BACK_BUTTON = getButton('←');
     private static final ItemStack NEXT_BUTTON = getButton('→');
     private static final ItemStack ALL_BUTTON = getButton(Component.text("All items", NamedTextColor.GREEN), Material.SHULKER_BOX);
     private static final ItemStack DELETE_ITEM_BUTTON = getButton(Component.text("Delete item", NamedTextColor.RED), Material.BARRIER);
     private static final ItemStack SEARCH_BUTTON = getButton(Component.text("Search", NamedTextColor.LIGHT_PURPLE), Material.SPYGLASS);
+
+    private static List<ItemStack> sortedItems = getSortedItems();
 
     private final Inventory inventory;
     private int page = 0;
@@ -42,7 +43,7 @@ public class ItemSearchMenu implements InventoryHolder {
         this.inventory = Bukkit.createInventory(this, 54, title);
 
         List<ItemStack> filtered = new ArrayList<>();
-        for (ItemStack item : ITEMS_SORTED){
+        for (ItemStack item : sortedItems){
             if (condition.test(item)){
                 filtered.add(item);
             }
@@ -170,6 +171,10 @@ public class ItemSearchMenu implements InventoryHolder {
         menu.show(viewer);
     }
 
+    public static void reloadItemSorting(){
+        sortedItems = getSortedItems();
+    }
+
     private static boolean isNotBlacklisted(ItemStack item, @NotNull List<ItemCondition> blacklist){
         return !anyMatch(item, blacklist);
     }
@@ -181,8 +186,8 @@ public class ItemSearchMenu implements InventoryHolder {
         return false;
     }
 
-    private static boolean matches(@NotNull ItemStack item, String searchTerm){
-        return item.getType().getKey().asString().contains(searchTerm);
+    private static boolean matches(@NotNull ItemStack item, @NotNull String searchTerm){
+        return PlainTextComponentSerializer.plainText().serialize(item.displayName()).toLowerCase().contains(searchTerm.toLowerCase());
     }
 
     private static @NotNull ItemStack getGreyStainedGlass(){
@@ -205,12 +210,13 @@ public class ItemSearchMenu implements InventoryHolder {
         return item;
     }
 
-    private static @NotNull List<ItemStack> getItemsSorted(){
-        List<ItemStack> sorted = new ArrayList<>();
-        List<ItemType> types = Registry.ITEM.stream().sorted(Comparator.comparing(Keyed::key)).toList();
-        for (ItemType type : types){
-            sorted.add(type.createItemStack());
+    private static @NotNull List<ItemStack> getSortedItems(){
+        List<ItemStack> items = new ArrayList<>();
+        for (ItemType type : Registry.ITEM){
+            items.add(type.createItemStack());
         }
-        return sorted;
+        items.addAll(ItemSearchMenuPlugin.get().getItemSearchMenuConfig().getExtraItems());
+        items.sort(Comparator.comparing(itemStack -> PlainTextComponentSerializer.plainText().serialize(itemStack.displayName())));
+        return items;
     }
 }

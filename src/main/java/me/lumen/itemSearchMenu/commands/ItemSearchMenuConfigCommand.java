@@ -17,11 +17,12 @@ import io.papermc.paper.command.brigadier.MessageComponentSerializer;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import me.lumen.itemSearchMenu.ItemSearchMenuPlugin;
 import me.lumen.itemSearchMenu.commands.args.ItemCategoryArg;
-import me.lumen.itemSearchMenu.commands.args.ItemTypeConditionArg;
+import me.lumen.itemSearchMenu.commands.args.ItemConditionArg;
 import me.lumen.itemSearchMenu.commands.args.MiniMessageArg;
 import me.lumen.itemSearchMenu.config.ItemCategory;
 import me.lumen.itemSearchMenu.config.ItemCondition;
 import me.lumen.itemSearchMenu.config.ItemSearchMenuConfig;
+import me.lumen.itemSearchMenu.gui.ItemSearchMenu;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -168,10 +169,10 @@ public class ItemSearchMenuConfigCommand {
                                         .requires(CATEGORY_EDIT_CONDITION)
                                         .then(Commands.literal("add")
                                                 .requires(CATEGORY_EDIT_CONDITION_ADD)
-                                                .then(Commands.argument("item-condition", ItemTypeConditionArg.argument())
+                                                .then(Commands.argument("item-condition", ItemConditionArg.argument())
                                                         .executes(context -> {
                                                             ItemCategory category = ItemCategoryArg.getItemCategory(context, "slot");
-                                                            ItemCondition condition = ItemTypeConditionArg.getItemCondition(context, "item-condition");
+                                                            ItemCondition condition = ItemConditionArg.getItemCondition(context, "item-condition");
                                                             if (category.hasItemCondition(condition)) {
                                                                 throw ITEM_CONDITION_ALREADY_EXISTS.create(condition.asString(), category.displayName());
                                                             }
@@ -184,7 +185,7 @@ public class ItemSearchMenuConfigCommand {
                                         )
                                         .then(Commands.literal("remove")
                                                 .requires(CATEGORY_EDIT_CONDITION_REMOVE)
-                                                .then(Commands.argument("item-condition", ItemTypeConditionArg.argument())
+                                                .then(Commands.argument("item-condition", ItemConditionArg.argument())
                                                         .suggests((context, builder) -> {
                                                             ItemCategory category = ItemCategoryArg.getItemCategory(context, "slot");
                                                             String remaining = builder.getRemaining();
@@ -196,7 +197,7 @@ public class ItemSearchMenuConfigCommand {
                                                         })
                                                         .executes(context -> {
                                                             ItemCategory category = ItemCategoryArg.getItemCategory(context, "slot");
-                                                            ItemCondition condition = ItemTypeConditionArg.getItemCondition(context, "item-condition");
+                                                            ItemCondition condition = ItemConditionArg.getItemCondition(context, "item-condition");
                                                             if (!category.hasItemCondition(condition)) {
                                                                 throw ITEM_CONDITION_NOT_EXISTS.create(condition.asString(), category.displayName());
                                                             }
@@ -256,7 +257,7 @@ public class ItemSearchMenuConfigCommand {
                 .requires(BLACKLIST)
                 .then(Commands.literal("add")
                         .requires(BLACKLIST_ADD)
-                        .then(Commands.argument("item-condition", ItemTypeConditionArg.argument())
+                        .then(Commands.argument("item-condition", ItemConditionArg.argument())
                                 .executes(context ->
                                         blacklistOperation(context, (config, condition) -> !config.isBlacklisted(condition), ALREADY_IN_BLACKLIST, ItemSearchMenuConfig::addBlacklistCondition, ItemSearchMenuConfig::sendBlacklistConditionAdded)
                                 )
@@ -264,7 +265,7 @@ public class ItemSearchMenuConfigCommand {
                 )
                 .then(Commands.literal("remove")
                         .requires(BLACKLIST_REMOVE)
-                        .then(Commands.argument("item-condition", ItemTypeConditionArg.argument())
+                        .then(Commands.argument("item-condition", ItemConditionArg.argument())
                                 .suggests((context, builder) -> {
                                     ItemSearchMenuPlugin.get().getItemSearchMenuConfig().getBlacklistAsString().forEach(builder::suggest);
                                     return builder.buildFuture();
@@ -343,6 +344,7 @@ public class ItemSearchMenuConfigCommand {
                         .executes(context -> {
                             ItemSearchMenuPlugin plugin = ItemSearchMenuPlugin.get();
                             plugin.reloadConfig();
+                            ItemSearchMenu.reloadItemSorting();
                             plugin.getItemSearchMenuConfig().sendReload(context.getSource().getSender());
                             return Command.SINGLE_SUCCESS;
                         })
@@ -379,7 +381,7 @@ public class ItemSearchMenuConfigCommand {
     private static int blacklistOperation(CommandContext<CommandSourceStack> context, @NonNull BiPredicate<ItemSearchMenuConfig, ItemCondition> conditionPredicate, DynamicCommandExceptionType conditionFailed,
                                           BiConsumer<ItemSearchMenuConfig, ItemCondition> operation, BlacklistOperationMessage message) throws CommandSyntaxException
     {
-        ItemCondition condition = ItemTypeConditionArg.getItemCondition(context, "item-condition");
+        ItemCondition condition = ItemConditionArg.getItemCondition(context, "item-condition");
         ItemSearchMenuConfig config = ItemSearchMenuPlugin.get().getItemSearchMenuConfig();
         if (!conditionPredicate.test(config, condition)) {
             throw conditionFailed.create(condition.asString());
