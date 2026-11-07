@@ -13,9 +13,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Registry;
 import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.*;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
@@ -144,7 +146,11 @@ public class ItemSearchMenu implements InventoryHolder {
         ItemStack item = items[page][slot - 9];
         if (item == null) return;
         ItemStack cursor = player.getItemOnCursor();
-        if (cursor.asOne().equals(item)){
+        if (event.isShiftClick()){
+            item = item.clone();
+            item.setAmount(item.getMaxStackSize());
+            player.setItemOnCursor(item);
+        } else if (cursor.asOne().equals(item)){
             player.setItemOnCursor(cursor.add());
         } else {
             player.setItemOnCursor(item);
@@ -187,7 +193,20 @@ public class ItemSearchMenu implements InventoryHolder {
     }
 
     private static boolean matches(@NotNull ItemStack item, @NotNull String searchTerm){
-        return PlainTextComponentSerializer.plainText().serialize(item.displayName()).toLowerCase().contains(searchTerm.toLowerCase());
+        return PlainTextComponentSerializer.plainText().serialize(item.displayName()).toLowerCase().contains(searchTerm.toLowerCase()) || hasEnchant(item, searchTerm);
+    }
+
+    private static boolean hasEnchant(@NotNull ItemStack item, String text){
+        for (Enchantment enchantment : item.getEnchantments().keySet()){
+            if (enchantment.getKey().value().contains(text.replace(" ", "_"))) return true;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta instanceof EnchantmentStorageMeta storageMeta){
+            for (Enchantment enchantment : storageMeta.getStoredEnchants().keySet()){
+                if (enchantment.getKey().value().contains(text.replace(" ", "_"))) return true;
+            }
+        }
+        return false;
     }
 
     private static @NotNull ItemStack getGreyStainedGlass(){
