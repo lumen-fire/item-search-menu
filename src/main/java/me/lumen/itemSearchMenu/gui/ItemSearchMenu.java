@@ -78,7 +78,13 @@ public class ItemSearchMenu implements InventoryHolder {
 
         for (ItemCategory category : ItemSearchMenuPlugin.get().getItemSearchMenuConfig().getItemCategories()){
             assert category.slot() < 10;
-            inventory.setItem(category.slot() - 1, category.icon());
+
+            ItemStack icon = category.icon();
+            ItemMeta meta = icon.getItemMeta();
+            meta.displayName(category.displayName());
+            icon.setItemMeta(meta);
+
+            inventory.setItem(category.slot() - 1, icon);
         }
 
         inventory.setItem(45, BACK_BUTTON);

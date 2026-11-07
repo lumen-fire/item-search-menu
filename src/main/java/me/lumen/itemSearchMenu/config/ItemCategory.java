@@ -64,7 +64,7 @@ public class ItemCategory {
     }
 
     public ItemStack icon(){
-        return icon;
+        return icon.clone();
     }
 
     public void setIcon(ItemStack icon) {
