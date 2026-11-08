@@ -333,3 +333,9 @@ extra-items:
     components:
       minecraft:stored_enchantments: '{"minecraft:lure":3}'
     schema_version: 1
+  - DataVersion: 4435
+    id: minecraft:enchanted_book
+    count: 1
+    components:
+      minecraft:stored_enchantments: '{"minecraft:density":5}'
+    schema_version: 1
