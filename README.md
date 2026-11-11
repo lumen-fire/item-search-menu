@@ -2,7 +2,11 @@
 **[Beta]**
 
 ![A search in the gui for stone](https://github.com/lumen-fire/item-search-menu/blob/main/stone_search.png?raw=true)
-A 1.21.6+ paper plugin for a GUI to search for items to get. 
+A 1.21.6+ paper plugin for a GUI to search for items to get. Includes a main page, search, and categories.
+In creative mode players have invulnerability, insta-mine, and quite dangerously full item creation and nbt/component editing,
+this plugin allows you to give players access to any items you wish, without the dangers of creative mode and without giving them access to _all_ items. 
+You can blacklist items to control which items the players can get.
+Click the item in the GUI to get one of it, shift click for a full stack.
 
 ## Features
  - Search with dialog text input
