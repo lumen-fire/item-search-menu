@@ -1,7 +1,7 @@
 # Item Search Menu 
 **[Beta]**
 
-![A search in the gui for stone](stone_search.png)
+![A search in the gui for stone](https://github.com/lumen-fire/item-search-menu/blob/main/stone_search.png?raw=true)
 A 1.21.6+ paper plugin for a GUI to search for items to get. 
 
 ## Features
