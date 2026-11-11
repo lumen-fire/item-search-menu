@@ -1,5 +1,5 @@
 name: item-search-menu
-version: '1.0.0-beta'
+version: '1.0.0'
 main: me.lumen.itemSearchMenu.ItemSearchMenuPlugin
 bootstrapper: me.lumen.itemSearchMenu.ItemSearchMenuBootstrap
 api-version: '1.21'

@@ -1,6 +1,4 @@
-# Item Search Menu 
-**[Beta]**
-
+# Item Search Menu
 ![A search in the gui for stone](https://github.com/lumen-fire/item-search-menu/blob/main/stone_search.png?raw=true)
 A 1.21.6+ paper plugin for a GUI to search for items to get. Includes a main page, search, and categories.
 In creative mode players have invulnerability, insta-mine, and quite dangerously full item creation and nbt/component editing,
